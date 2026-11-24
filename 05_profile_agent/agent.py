@@ -1,6 +1,6 @@
 from dotenv import load_dotenv
 from google.adk.agents import LlmAgent
-# REPLACE ME: Add tools import
+# REPLACE ME: Add tools import (use try/except ImportError for .tools vs tools so both `adk web` and `main.py` work)
 
 load_dotenv()
 
@@ -9,7 +9,7 @@ setup_user_db()
 
 root_agent = LlmAgent(
     name="profile_planner",
-    model="gemini-2.5-flash",
+    model="gemini-3.5-flash",
     # REPLACE ME: Add tools to root agent
     instruction="""
     You are a hyper-personalized Master Trip Planner.

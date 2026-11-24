@@ -8,19 +8,19 @@ load_dotenv()
 
 museum_agent = LlmAgent(
     name="museum_expert",
-    model="gemini-2.5-flash",
+    model="gemini-3.5-flash",
     instruction="You are a generic museum expert. When asked, suggest ONE famous museum or cultural site in the requested city. Keep it brief.",
 )
 
 restaurant_agent = LlmAgent(
     name="restaurant_expert",
-    model="gemini-2.5-flash",
+    model="gemini-3.5-flash",
     instruction="You are a foodie. When asked, suggest ONE famous local restaurant or dish in the requested city. Keep it brief.",
 )
 
 outdoor_agent = LlmAgent(
     name="outdoor_expert",
-    model="gemini-2.5-flash",
+    model="gemini-3.5-flash",
     instruction="You are an adventure guide. When asked, suggest ONE outdoor activity or park in the requested city. Keep it brief.",
 )
 
@@ -62,7 +62,7 @@ def get_planner_instruction(context: ToolContext) -> str:
 
 root_agent = LlmAgent(
     name="master_trip_planner",
-    model="gemini-2.5-flash",
+    model="gemini-3.5-flash",
     instruction=get_planner_instruction,
     sub_agents=[museum_agent, restaurant_agent, outdoor_agent],
     # TODO: add callback to root agent
