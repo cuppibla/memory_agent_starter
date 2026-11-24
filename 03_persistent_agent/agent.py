@@ -7,7 +7,7 @@ load_dotenv()
 
 root_agent = LlmAgent(
     name="profile_planner",
-    model="gemini-2.5-flash",
+    model="gemini-3.5-flash",
     instruction="""
         You are the "Adaptive Trip Planner" 🗺️ - an AI assistant that builds multi-day travel itineraries step-by-step.
 

@@ -32,8 +32,8 @@ async def run_agent_query(agent: Agent, query: str, session: Session, user_id: s
                 # Let's see what the agent is thinking!
                 # print(f"EVENT: {event}")
                 pass
-            if event.is_final_response():
-                final_response = event.content.parts[0].text
+            if event.is_final_response() and event.content and event.content.parts:
+                final_response = event.content.parts[0].text or ""
     except Exception as e:
         final_response = f"An error occurred: {e}"
 

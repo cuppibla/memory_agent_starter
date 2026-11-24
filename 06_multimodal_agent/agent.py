@@ -1,6 +1,6 @@
 from dotenv import load_dotenv
 from google.adk.agents import LlmAgent
-# REPLACE ME: add imports
+# REPLACE ME: add imports (e.g., from google.adk.tools.preload_memory_tool import PreloadMemoryTool)
 
 try:
     from .tools import budget_tool
@@ -10,7 +10,7 @@ except ImportError:
 load_dotenv()
 
 root_agent = LlmAgent(
-    model="gemini-2.5-flash",
+    model="gemini-3.5-flash",
     name="TripPlanner",
     instruction="""You are an advanced trip planning assistant with memory and tools.
 

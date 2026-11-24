@@ -27,7 +27,12 @@ from agent import root_agent
 load_dotenv()
 
 PROJECT_ID = os.getenv("GOOGLE_CLOUD_PROJECT") or os.getenv("PROJECT_ID")
-LOCATION = os.getenv("GOOGLE_CLOUD_LOCATION") or os.getenv("LOCATION", "us-central1")
+# Vertex AI Agent Engine requires a regional endpoint (e.g. us-central1) rather than 'global'
+LOCATION = (
+    os.getenv("GOOGLE_CLOUD_LOCATION")
+    if os.getenv("GOOGLE_CLOUD_LOCATION") not in (None, "global")
+    else None
+) or os.getenv("REGION") or os.getenv("LOCATION", "us-central1")
 
 if not PROJECT_ID:
     raise ValueError("Please set GOOGLE_CLOUD_PROJECT environment variable.")
@@ -103,8 +108,8 @@ def call_agent(runner: Runner, content: types.Content, session_id: str, user_id:
 
     final_response = ""
     for event in events:
-        if event.is_final_response():
-            final_response = event.content.parts[0].text
+        if event.is_final_response() and event.content and event.content.parts:
+            final_response = event.content.parts[0].text or ""
             print(f"--- Agent ({runner.agent.name}) ---")
             print(final_response)
             print("-----------------------")

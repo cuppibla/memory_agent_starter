@@ -15,6 +15,7 @@ from google.adk.sessions import Session, DatabaseSessionService
 from agent import root_agent
 
 # TODO: Configuration for Persistent Sessions
+# Note: DatabaseSessionService requires an async driver URL (e.g., "sqlite+aiosqlite:///...")
 
 # --- A Helper Function to Run Our Agents ---
 async def run_agent_query(agent: Agent, query: str, session: Session, user_id: str, session_service: DatabaseSessionService, is_router: bool = False):
@@ -38,8 +39,8 @@ async def run_agent_query(agent: Agent, query: str, session: Session, user_id: s
                 # Let's see what the agent is thinking!
                 # print(f"EVENT: {event}")
                 pass
-            if event.is_final_response():
-                final_response = event.content.parts[0].text
+            if event.is_final_response() and event.content and event.content.parts:
+                final_response = event.content.parts[0].text or ""
     except Exception as e:
         final_response = f"An error occurred: {e}"
 
@@ -52,7 +53,7 @@ async def run_agent_query(agent: Agent, query: str, session: Session, user_id: s
     return final_response
 
 async def main():
-    # REPLACE ME: Create a database session servic
+    # REPLACE ME: Create a database session service
     
     # --- Test Case 1: New Session ---
     print("\n" + "="*50)
@@ -125,22 +126,30 @@ async def main():
             # Based on standard ADK, it might be a Pydantic model with 'role' and 'parts'.
             # Let's try to stringify it safely.
             try:
-                role = getattr(event, 'role', 'unknown')
+                role = getattr(event, 'author', None) or getattr(getattr(event, 'content', None), 'role', None) or getattr(event, 'role', 'unknown')
                 text = ""
-                if hasattr(event, 'parts'):
-                    text = " ".join([p.text for p in event.parts if hasattr(p, 'text')])
-                elif hasattr(event, 'content') and hasattr(event.content, 'parts'):
-                     text = " ".join([p.text for p in event.content.parts if hasattr(p, 'text')])
+                if getattr(event, 'parts', None):
+                    text = " ".join([p.text for p in event.parts if getattr(p, 'text', None)])
+                elif getattr(event, 'content', None) and getattr(event.content, 'parts', None):
+                    text = " ".join([p.text for p in event.content.parts if getattr(p, 'text', None)])
                 
                 if text:
                     # TODO: Extract content from the OLD session
+                    pass
 
             except Exception as e:
                 print(f"Error parsing event: {e}")
 
     print(f"Extracted Context:\n{previous_context}")
 
-    # 3. Create the NEW session
+    # 3. Create the NEW session (delete first if left over from a previous run)
+    existing_new_session = await session_service.get_session(
+        app_name=root_agent.name, user_id="user_01", session_id=new_session_id
+    )
+    if existing_new_session:
+        await session_service.delete_session(
+            app_name=root_agent.name, user_id="user_01", session_id=new_session_id
+        )
     new_session = await session_service.create_session(
         app_name=root_agent.name, user_id="user_01", session_id=new_session_id
     )
@@ -151,6 +160,7 @@ async def main():
     
     
     await run_agent_query(root_agent, query_3, new_session, "user_01", session_service)
+    await session_service.close()
 
 if __name__ == "__main__":
     asyncio.run(main())
